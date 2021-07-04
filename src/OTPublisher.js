@@ -36,8 +36,8 @@ export default class OTPublisher extends Component {
     };
 
     if (shouldUpdate('videoSource', undefined)) {
-      this.destroyPublisher();
-      this.createPublisher();
+      this.destroyPublisher(this.state.session, this.createPublisher);
+      // this.createPublisher();
       return;
     }
 
@@ -45,7 +45,7 @@ export default class OTPublisher extends Component {
     updatePublisherProperty('publishVideo', true);
 
     if (this.state.session !== prevState.session) {
-      this.destroyPublisher(prevState.session);
+      this.destroyPublisher(prevState.session, this.createPublisher);
       this.createPublisher();
     }
   }
@@ -62,7 +62,7 @@ export default class OTPublisher extends Component {
     return this.state.publisher;
   }
 
-  destroyPublisher(session = this.state.session) {
+  destroyPublisher(session = this.state.session, callback = null) {
     delete this.publisherId;
 
     if (this.state.publisher) {
@@ -74,6 +74,9 @@ export default class OTPublisher extends Component {
       ) {
         this.state.publisher.once('destroyed', () => {
           this.state.publisher.off(this.props.eventHandlers);
+          if (callback) {
+            callback();
+          }
         });
       }
 
